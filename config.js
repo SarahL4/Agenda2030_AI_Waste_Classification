@@ -3,6 +3,15 @@ const config = {
 	GEMINI_API: {
 		key: 'AIzaSyCDuvNGzRoX-tUSR-XjlKS1MfXEwhBYaJY', // 替换为你的 API Key
 	},
+	// 背景图片配置
+	backgroundImage: './src/background_image.jpg',
+	// 垃圾桶图片配置
+	binImages: {
+		recyclable: './src/recyclable.jpg',
+		hazardous: './src/hazardous.jpg',
+		food: './src/food.jpg',
+		other: './src/other.jpg',
+	},
 	// 垃圾分类规则
 	wasteCategories: {
 		recyclable: [
