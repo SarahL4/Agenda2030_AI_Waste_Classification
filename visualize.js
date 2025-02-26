@@ -1,6 +1,6 @@
 class DatasetVisualizer {
 	constructor() {
-		this.dataPath = './data/Garbage classification';
+		this.dataPath = './data';
 		this.categories = [
 			'glass',
 			'paper',
@@ -23,11 +23,52 @@ class DatasetVisualizer {
 	async init() {
 		try {
 			const distribution = await this.getDistribution();
-			this.createDistributionChart(distribution);
+			await this.visualizeDistribution(distribution);
 			await this.displaySampleImages();
 		} catch (error) {
 			console.error('Error initializing visualization:', error);
 		}
+	}
+
+	async visualizeDistribution(distribution) {
+		// 准备数据
+		const data = Object.entries(distribution).map(([category, count]) => ({
+			index: category,
+			value: count,
+		}));
+
+		// 使用 tfvis 创建柱状图
+		const surface = { name: 'Dataset Distribution', tab: 'Charts' };
+
+		await tfvis.render.barchart(surface, data, {
+			xLabel: 'Category',
+			yLabel: 'Number of Images',
+			height: 300,
+			fontSize: 16,
+			color: Object.entries(distribution).map(
+				([category]) => this.categoryColors[category]
+			),
+		});
+
+		// 显示统计信息
+		const totalImages = Object.values(distribution).reduce((a, b) => a + b, 0);
+		const stats = {
+			'Total Images': totalImages,
+			Categories: Object.keys(distribution).length,
+			'Average per Category': Math.round(
+				totalImages / Object.keys(distribution).length
+			),
+			'Max Count': Math.max(...Object.values(distribution)),
+			'Min Count': Math.min(...Object.values(distribution)),
+		};
+
+		await tfvis.render.table(
+			{ name: 'Dataset Statistics', tab: 'Statistics' },
+			{
+				headers: ['Metric', 'Value'],
+				values: Object.entries(stats).map(([k, v]) => [k, v]),
+			}
+		);
 	}
 
 	async getDistribution() {
@@ -39,61 +80,6 @@ class DatasetVisualizer {
 			metal: 410,
 			trash: 137,
 		};
-	}
-
-	createDistributionChart(distribution) {
-		const ctx = document.getElementById('distributionChart').getContext('2d');
-
-		// Destroy existing chart if it exists
-		if (window.distributionChart instanceof Chart) {
-			window.distributionChart.destroy();
-		}
-
-		window.distributionChart = new Chart(ctx, {
-			type: 'bar',
-			data: {
-				labels: Object.keys(distribution),
-				datasets: [
-					{
-						label: 'Number of Images',
-						data: Object.values(distribution),
-						backgroundColor: Object.keys(distribution).map(
-							(cat) => this.categoryColors[cat]
-						),
-						borderWidth: 1,
-					},
-				],
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				scales: {
-					y: {
-						beginAtZero: true,
-						title: {
-							display: true,
-							text: 'Number of Images',
-						},
-					},
-					x: {
-						title: {
-							display: true,
-							text: 'Waste Categories',
-						},
-					},
-				},
-				plugins: {
-					title: {
-						display: true,
-						text: 'Distribution of Images Across Categories',
-						padding: 20,
-					},
-					legend: {
-						display: false,
-					},
-				},
-			},
-		});
 	}
 
 	async displaySampleImages() {
@@ -120,10 +106,10 @@ class DatasetVisualizer {
 			img.alt = `${category} sample`;
 
 			// Try to load the actual image
-			fetch(`./data/Garbage classification/${category}/${category}1.jpg`)
+			fetch(`./data/${category}/${category}1.jpg`)
 				.then((response) => {
 					if (response.ok) {
-						img.src = `./data/Garbage classification/${category}/${category}1.jpg`;
+						img.src = `./data/${category}/${category}1.jpg`;
 					}
 				})
 				.catch(() => {
