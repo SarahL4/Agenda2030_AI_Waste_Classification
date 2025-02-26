@@ -33,19 +33,19 @@ class WasteClassifier {
 		const file = event.target.files[0];
 		if (!file) return;
 
-		// 显示图片预览
+		// Display image preview
 		this.displayImagePreview(file);
 
 		try {
-			// 转换图片为base64
+			// Convert image to base64
 			const base64Image = await this.getBase64(file);
-			// 调用Google Vision API
+			// Call Google Vision API
 			const result = await this.analyzeImage(base64Image);
-			// 处理分析结果
+			// Process analysis results
 			this.processResults(result);
 		} catch (error) {
 			console.error('Error:', error);
-			alert('图片分析失败，请重试');
+			alert('Image analysis failed, please try again');
 		}
 	}
 
@@ -68,10 +68,9 @@ class WasteClassifier {
 
 	async analyzeImage(base64Image) {
 		try {
-			// 等待 SDK 加载完成
-			await this.waitForSDK();
+			// Wait for SDK to load
 
-			// 初始化 Gemini API
+			// Initialize Gemini API
 			const genAI = new window.GoogleGenerativeAI(config.GEMINI_API.key);
 			const model = genAI.getGenerativeModel({
 				model: 'gemini-2.0-flash-exp',
@@ -83,7 +82,7 @@ class WasteClassifier {
 				},
 			});
 
-			// 创建图片数据
+			// Create image data
 			const imageData = {
 				inlineData: {
 					data: base64Image,
@@ -91,24 +90,24 @@ class WasteClassifier {
 				},
 			};
 
-			// 创建提示
+			// Create prompt
 			const prompt =
 				'Can you classify this picture to waste classification? Is it a metal, plastic, paper or other material? Please respond with only 1-2 words.';
 
-			// 发送请求
+			// Send request
 			const result = await model.generateContent([prompt, imageData]);
 			const response = await result.response;
 			const text = response.text();
 
-			console.log('API返回结果:', text);
+			console.log('API response:', text);
 
-			// 解析 Gemini 返回的文本结果
+			// Parse Gemini text response
 			const labels = text
 				.split(',')
 				.map((label) => label.trim())
 				.filter((label) => label.length > 0);
 
-			// 转换结果格式以匹配原来的处理方式
+			// Convert result format to match original processing
 			return {
 				responses: [
 					{
@@ -120,8 +119,8 @@ class WasteClassifier {
 				],
 			};
 		} catch (error) {
-			console.error('分析图片时出错:', error.message);
-			alert('图片分析失败，请重试');
+			console.error('Error analyzing image:', error.message);
+			alert('Image analysis failed, please try again');
 			throw error;
 		}
 	}
@@ -129,7 +128,8 @@ class WasteClassifier {
 	processResults(apiResult) {
 		const labels = apiResult.responses[0].labelAnnotations;
 		let category = this.determineWasteCategory(labels);
-
+		console.log(labels);
+		console.log(category);
 		this.displayResults(category, labels);
 	}
 
@@ -154,17 +154,17 @@ class WasteClassifier {
 		resultSection.style.display = 'block';
 
 		const categoryMessages = {
-			recyclable: '这是可回收垃圾',
-			hazardous: '这是有害垃圾',
-			food: '这是厨余垃圾',
-			other: '这是其他垃圾',
+			recyclable: 'This is recyclable waste',
+			hazardous: 'This is hazardous waste',
+			food: 'This is food waste',
+			other: 'This is other waste',
 		};
 
 		resultContent.innerHTML = `
 		<div class="result-card">
 			<div class="result-icon ${category}"></div>
 			<h3 class="result-title">${categoryMessages[category]}</h3>
-			<p class="result-details">识别到的特征：${labels
+			<p class="result-details">Detected features: ${labels
 				.map((label) => `<span class="label-tag">${label.description}</span>`)
 				.join('')}</p>
 		</div>
@@ -181,20 +181,22 @@ class WasteClassifier {
 
 	getDisposalGuide(category) {
 		const guides = {
-			recyclable: '请确保物品清洁干燥，投放到可回收垃圾桶',
-			hazardous: '请妥善包装，送到专门的有害垃圾回收点',
-			food: '请沥干水分后投放到厨余垃圾桶',
-			other: '请投放到其他垃圾桶',
+			recyclable:
+				'Please ensure items are clean and dry before placing in recycling bin',
+			hazardous:
+				'Please package properly and take to a specialized hazardous waste collection point',
+			food: 'Please drain excess water before placing in food waste bin',
+			other: 'Please place in general waste bin',
 		};
 
 		return `<div class="disposal-guide">
-			<h3>处理建议</h3>
+			<h3>Disposal Guide</h3>
 			<p>${guides[category]}</p>
 		</div>`;
 	}
 }
 
-// 初始化应用
+// Initialize application
 document.addEventListener('DOMContentLoaded', () => {
 	new WasteClassifier();
 });

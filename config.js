@@ -1,18 +1,18 @@
 const config = {
-	// Gemini API配置
+	// Gemini API configuration
 	GEMINI_API: {
-		key: 'AIzaSyCDuvNGzRoX-tUSR-XjlKS1MfXEwhBYaJY', // 替换为你的 API Key
+		key: 'AIzaSyCDuvNGzRoX-tUSR-XjlKS1MfXEwhBYaJY', // Replace with your API Key
 	},
-	// 背景图片配置
+	// Background image configuration
 	backgroundImage: './src/background_image.jpg',
-	// 垃圾桶图片配置
+	// Waste bin image configuration
 	binImages: {
 		recyclable: './src/recyclable.jpg',
 		hazardous: './src/hazardous.jpg',
 		food: './src/food.jpg',
 		other: './src/other.jpg',
 	},
-	// 垃圾分类规则
+	// Waste classification rules
 	wasteCategories: {
 		recyclable: [
 			'bottle',
@@ -24,13 +24,8 @@ const config = {
 			'glass',
 			'newspaper',
 			'magazine',
-			'金属',
-			'塑料',
-			'纸',
-			'玻璃',
-			'罐',
-			'瓶',
-			'盒',
+			'metal',
+			'box',
 		],
 		hazardous: [
 			'battery',
@@ -40,43 +35,8 @@ const config = {
 			'chemical',
 			'medicine',
 			'bulb',
-			'电池',
-			'电子',
-			'化学',
-			'药品',
-			'灯泡',
 		],
-		food: [
-			'food',
-			'fruit',
-			'vegetable',
-			'meat',
-			'fish',
-			'bread',
-			'leftover',
-			'食物',
-			'水果',
-			'蔬菜',
-			'肉',
-			'鱼',
-			'面包',
-			'剩饭',
-		],
-		other: [
-			'textile',
-			'ceramic',
-			'rubber',
-			'toy',
-			'wood',
-			'dust',
-			'dirt',
-			'纺织',
-			'陶瓷',
-			'橡胶',
-			'玩具',
-			'木材',
-			'灰尘',
-			'污垢',
-		],
+		food: ['food', 'fruit', 'vegetable', 'meat', 'fish', 'bread', 'leftover'],
+		other: ['textile', 'ceramic', 'rubber', 'toy', 'wood', 'dust', 'dirt'],
 	},
 };
