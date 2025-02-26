@@ -160,10 +160,8 @@ class WasteClassifier {
 		};
 
 		resultContent.innerHTML = `
-            <h3>识别结果：${categoryMessages[category]}</h3>
-            <p>识别到的物品特征：${labels
-							.map((label) => label.description)
-							.join(', ')}</p>
+		<h3>识别结果：${categoryMessages[category]}</h3>
+		<p>识别到的物品特征：${labels.map((label) => label.description).join(', ')}</p>
         `;
 
 		disposalGuide.innerHTML = this.getDisposalGuide(category);
@@ -177,10 +175,20 @@ class WasteClassifier {
 			other: '请投放到其他垃圾桶',
 		};
 
+		const binImages = {
+			recyclable: './src/recyclable.jpg',
+			hazardous: './src/hazardous.jpg',
+			food: './src/food.jpg',
+			other: './src/other.jpg',
+		};
+
 		return `<div class="disposal-guide">
-            <h3>处理建议</h3>
-            <p>${guides[category]}</p>
-        </div>`;
+			<h3>处理建议</h3>
+			<p>${guides[category]}</p>
+			<div class="bin-image">
+				<img src="${binImages[category]}" alt="${category} bin" style="width: 300px; height: 150px;">
+			</div>
+		</div>`;
 	}
 }
 
