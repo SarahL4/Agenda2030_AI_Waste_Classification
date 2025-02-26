@@ -30,8 +30,48 @@
 		<div class="container">
 			<h1>Train Waste Classification Model</h1>
 			<div class="training-content">
-				<p>Model training interface will be added here...</p>
+				<div class="model-config">
+					<h2>Model Configuration</h2>
+					<div class="config-grid">
+						<div class="config-item">
+							<label for="batchSize">Batch Size:</label>
+							<input type="number" id="batchSize" value="32" min="1" />
+						</div>
+						<div class="config-item">
+							<label for="epochs">Epochs:</label>
+							<input type="number" id="epochs" value="10" min="1" />
+						</div>
+						<div class="config-item">
+							<label for="learningRate">Learning Rate:</label>
+							<input
+								type="number"
+								id="learningRate"
+								value="0.001"
+								step="0.001"
+							/>
+						</div>
+					</div>
+					<button id="trainButton" class="train-btn">
+						<i class="fas fa-play"></i> Start Training
+					</button>
+				</div>
+
+				<div class="training-progress">
+					<h2>Training Progress</h2>
+					<div id="lossChart"></div>
+					<div id="accuracyChart"></div>
+					<div class="progress-stats" id="progressStats"></div>
+				</div>
+
+				<div class="model-evaluation">
+					<h2>Model Evaluation</h2>
+					<div id="confusionMatrix"></div>
+					<div class="test-results" id="testResults"></div>
+				</div>
 			</div>
 		</div>
+		<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis"></script>
+		<script src="train.js"></script>
 	</body>
 </html>

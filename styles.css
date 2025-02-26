@@ -366,3 +366,99 @@ h1 {
 	font-size: 0.9rem;
 	text-transform: capitalize;
 }
+
+/* Training page styles */
+.training-content {
+	display: grid;
+	gap: 2rem;
+}
+
+.model-config {
+	background: white;
+	padding: 2rem;
+	border-radius: 12px;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.config-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1rem;
+	margin: 1rem 0;
+}
+
+.config-item {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.config-item label {
+	font-weight: 600;
+	color: #2c3e50;
+}
+
+.config-item input {
+	padding: 0.5rem;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	font-size: 1rem;
+}
+
+.train-btn {
+	background: #2ecc71;
+	color: white;
+	border: none;
+	padding: 1rem 2rem;
+	border-radius: 8px;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 1rem;
+}
+
+.train-btn:hover {
+	background: #27ae60;
+	transform: translateY(-2px);
+}
+
+.train-btn:disabled {
+	background: #95a5a6;
+	cursor: not-allowed;
+}
+
+.training-progress,
+.model-evaluation {
+	background: white;
+	padding: 2rem;
+	border-radius: 12px;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.progress-stats {
+	margin-top: 1rem;
+	padding: 1rem;
+	background: #f8f9fa;
+	border-radius: 8px;
+}
+
+.progress-stats p {
+	margin: 0.5rem 0;
+	color: #2c3e50;
+}
+
+.evaluation-stats {
+	margin-top: 1rem;
+	padding: 1rem;
+	background: #f8f9fa;
+	border-radius: 8px;
+}
+
+.evaluation-stats p {
+	margin: 0.5rem 0;
+	color: #2c3e50;
+	font-weight: 500;
+}
