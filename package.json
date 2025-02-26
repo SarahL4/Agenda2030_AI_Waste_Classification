@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs-vis": "^1.5.1",
+    "express": "^4.21.2"
+  },
+  "name": "agenda2020_jinyan_liu",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SarahL4/Agenda2020_Jinyan_Liu.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SarahL4/Agenda2020_Jinyan_Liu/issues"
+  },
+  "homepage": "https://github.com/SarahL4/Agenda2020_Jinyan_Liu#readme"
+}
