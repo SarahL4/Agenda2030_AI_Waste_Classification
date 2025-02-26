@@ -92,7 +92,7 @@ class WasteClassifier {
 
 			// Create prompt
 			const prompt =
-				'Can you classify this picture for waste sorting? If it looks reusable (like clothes, furniture, books, toys in good condition), say "reusable". If it\'s a deposit-returnable item (metal/plastic can or bottle), say "deposit". Otherwise, describe the main material (metal, plastic, paper, textile, etc). Please respond with only 1-2 words.';
+				'Can you classify this picture for waste sorting? If it\'s food or organic waste (including fruits, vegetables, leftovers, garden waste), say "food". If it looks reusable (like clothes, furniture, books, toys in good condition), say "reusable". If it\'s a deposit-returnable item (metal/plastic can or bottle), say "deposit". Otherwise, describe the main material (metal, plastic, paper, textile, etc). Please respond with only 1-2 words.';
 
 			// Send request
 			const result = await model.generateContent([prompt, imageData]);
@@ -141,6 +141,19 @@ class WasteClassifier {
 		if (labelNames.includes('deposit')) {
 			console.log('Direct deposit detection');
 			return 'deposit';
+		}
+
+		// Check if it's food or organic waste
+		const foodKeywords = config.wasteCategories.food;
+		const isFood = labelNames.some((label) =>
+			foodKeywords.some(
+				(keyword) => label.includes(keyword) || keyword.includes(label)
+			)
+		);
+
+		if (isFood || labelNames.includes('food')) {
+			console.log('Classified as food waste');
+			return 'food';
 		}
 
 		// First check if item is deposit-returnable
