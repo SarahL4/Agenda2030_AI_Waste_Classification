@@ -75,7 +75,7 @@ class WasteClassifier {
 			const model = genAI.getGenerativeModel({
 				model: 'gemini-2.0-flash-exp',
 				generationConfig: {
-					temperature: 0.4,
+					temperature: 1.8,
 					topK: 32,
 					topP: 1,
 					maxOutputTokens: 50,
@@ -92,7 +92,7 @@ class WasteClassifier {
 
 			// Create prompt
 			const prompt =
-				'Can you classify this picture to waste classification? Is it a metal, plastic, paper or other material? Please respond with only 1-2 words.';
+				'Can you classify this picture for waste sorting? If it looks reusable (like clothes, furniture, books, toys in good condition), say "reusable". If it\'s a deposit-returnable item (metal/plastic can or bottle), say "deposit". Otherwise, describe the main material (metal, plastic, paper, textile, etc). Please respond with only 1-2 words.';
 
 			// Send request
 			const result = await model.generateContent([prompt, imageData]);
@@ -135,9 +135,60 @@ class WasteClassifier {
 
 	determineWasteCategory(labels) {
 		const labelNames = labels.map((label) => label.description.toLowerCase());
+		console.log(labelNames);
+
+		// Check if "deposit" is directly detected
+		if (labelNames.includes('deposit')) {
+			console.log('Direct deposit detection');
+			return 'deposit';
+		}
+
+		// First check if item is deposit-returnable
+		const depositKeywords = config.wasteCategories.deposit;
+		const isDeposit = labelNames.some((label) =>
+			depositKeywords.some(
+				(keyword) => label.includes(keyword) || keyword.includes(label)
+			)
+		);
+
+		// If it's a bottle or can, check if it's likely a deposit item
+		if (
+			isDeposit &&
+			labelNames.some(
+				(label) =>
+					label.includes('bottle') ||
+					label.includes('can') ||
+					label.includes('container')
+			)
+		) {
+			console.log('Classified as deposit item');
+			return 'deposit';
+		}
+
+		// First check if item is reusable
+		const reusableKeywords = config.wasteCategories.reuse;
+		if (
+			labelNames.some((label) =>
+				reusableKeywords.some(
+					(keyword) => label.includes(keyword) || keyword.includes(label)
+				)
+			)
+		) {
+			return 'reuse';
+		}
 
 		for (const [category, keywords] of Object.entries(config.wasteCategories)) {
-			if (keywords.some((keyword) => labelNames.includes(keyword))) {
+			// Skip reuse and deposit as we already checked them
+			if (category === 'reuse' || category === 'deposit') continue;
+			console.log('category' + category);
+			console.log(keywords);
+			if (
+				keywords.some((keyword) =>
+					labelNames.some(
+						(label) => label.includes(keyword) || keyword.includes(label)
+					)
+				)
+			) {
 				return category;
 			}
 		}
@@ -153,12 +204,18 @@ class WasteClassifier {
 
 		resultSection.style.display = 'block';
 
+		console.log('Displaying results for category:', category); // Debug log
+
 		const categoryMessages = {
+			deposit: 'This is a deposit-return item', // Move deposit to top
 			recyclable: 'This is recyclable waste',
 			hazardous: 'This is hazardous waste',
 			food: 'This is food waste',
 			other: 'This is other waste',
+			reuse: 'This item can be reused',
 		};
+
+		console.log('Category message:', categoryMessages[category]); // Debug log
 
 		resultContent.innerHTML = `
 		<div class="result-card">
@@ -187,6 +244,10 @@ class WasteClassifier {
 				'Please package properly and take to a specialized hazardous waste collection point',
 			food: 'Please drain excess water before placing in food waste bin',
 			other: 'Please place in general waste bin',
+			reuse:
+				'Please take this item to a reuse center or donate it if in good condition',
+			deposit:
+				'Please return this item to a deposit-return machine or store first to get your deposit back. If not accepted, then place it in the recycling bin.',
 		};
 
 		return `<div class="disposal-guide">
