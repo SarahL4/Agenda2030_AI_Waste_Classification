@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>智能垃圾分类助手</title>
+		<link rel="stylesheet" href="styles.css" />
+	</head>
+	<body>
+		<div class="container">
+			<h1>智能垃圾分类助手</h1>
+
+			<div class="upload-section">
+				<input type="file" id="imageInput" accept="image/*" hidden />
+				<button id="uploadBtn">上传图片</button>
+				<div id="imagePreview"></div>
+			</div>
+
+			<div class="result-section" id="resultSection" style="display: none">
+				<h2>分析结果</h2>
+				<div id="resultContent"></div>
+				<div id="disposalGuide"></div>
+			</div>
+		</div>
+
+		<script type="module">
+			import { GoogleGenerativeAI } from 'https://esm.run/@google/generative-ai';
+			window.GoogleGenerativeAI = GoogleGenerativeAI;
+		</script>
+		<script src="config.js"></script>
+		<script src="app.js"></script>
+	</body>
+</html>
