@@ -462,3 +462,27 @@ h1 {
 	color: #2c3e50;
 	font-weight: 500;
 }
+
+.download-btn {
+	background: #3498db;
+	color: white;
+	border: none;
+	padding: 1rem 2rem;
+	border-radius: 8px;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 1rem 0;
+}
+
+.download-btn:hover {
+	background: #2980b9;
+	transform: translateY(-2px);
+}
+
+.download-btn i {
+	font-size: 1.2rem;
+}
