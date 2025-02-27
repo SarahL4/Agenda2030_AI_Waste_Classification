@@ -110,19 +110,51 @@ h1 {
 
 .result-container {
 	display: flex;
-	gap: 2rem;
-	margin-bottom: 2rem;
-	align-items: stretch;
+	flex-direction: column; /* Stack rows vertically */
 }
-
+.result-row {
+	display: flex; /* Arrange items in a row */
+	width: 100%; /* Each row takes full width */
+}
 .result-left {
-	flex: 1;
-	padding: 1rem;
+	flex: 1; /* Take up available space */
+	padding: 10px; /* Add some padding */
 }
 
 .result-right {
-	flex: 1;
-	padding: 1rem;
+	flex: 1; /* Take up available space */
+	padding: 10px; /* Add some padding */
+}
+
+#disposalGuide {
+	width: 100%; /* Take up full width */
+	padding: 10px; /* Add some padding */
+	background: #27ae600f;
+}
+
+.resultElement-row {
+	display: flex;
+	margin-bottom: 10px;
+}
+
+.resultElement-left {
+	width: 50%;
+	text-align: left;
+}
+
+.resultElement-right {
+	width: 50%;
+}
+
+.confidence-bar {
+	height: 20px;
+	background-color: #4caf50; /* Green */
+	border-radius: 5px;
+}
+
+.label-container {
+	display: flex;
+	align-items: center;
 }
 
 .bin-image {

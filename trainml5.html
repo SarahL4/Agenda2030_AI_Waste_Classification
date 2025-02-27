@@ -72,7 +72,8 @@
 		</nav>
 
 		<div class="container">
-			<h1>Train Waste Classification Model with ML5</h1>
+			<h1>Smart Waste Classifier with ML5 and pre-trained MobileNet</h1>
+
 			<div class="upload-section">
 				<input
 					type="file"
@@ -86,15 +87,36 @@
 				<div id="imagePreview"></div>
 			</div>
 
-			<div class="training-content">
-				<button id="classifyButton">分类图像</button>
+			<div>
+				<button id="classifyButton" class="btn btn-primary">分类图像</button>
+			</div>
+
+			<div class="result-section" id="resultSection" style="display: none">
+				<h2>Analysis Result</h2>
+				<div class="result-container">
+					<div class="result-row">
+						<div class="result-left" id="resultContent"></div>
+						<div class="result-right" id="binImage"></div>
+					</div>
+					<div class="result-row">
+						<div id="disposalGuide"></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="result-section" id="resultprobability" style="display: none">
+				<h2>Ml5.js train pre-trained model MobileNet</h2>
+				<h2>Classification result</h2>
+				<div class="resultElement-row header-row">
+					<div class="resultElement-left">Label</div>
+					<div class="resultElement-right">Probability</div>
+				</div>
 				<div id="result"></div>
 			</div>
 		</div>
 
 		<!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
 		<script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script> -->
-		<script src="ml5.js"></script>
 		<script>
 			// 添加错误处理
 			window.addEventListener('error', function (e) {
@@ -102,5 +124,7 @@
 				alert('训练过程出错，请刷新页面重试');
 			});
 		</script>
+		<script src="config.js"></script>
+		<script src="ml5.js"></script>
 	</body>
 </html>

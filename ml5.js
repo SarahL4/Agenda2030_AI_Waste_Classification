@@ -102,18 +102,34 @@ class Ml5Classifier {
 					return;
 				}
 				console.log('分类结果:', err);
+				/*{
+					"label": "ashcan, trash can, garbage can, wastebin, ash bin, ash-bin, ashbin, dustbin, trash barrel, trash bin",
+					"confidence": 0.5448657274246216
+				}*/
 				this.getMostLikelyCategory(err);
 
 				// 在页面上显示分类结果
 				const resultElement = document.getElementById('result');
+				const resultprobability = document.getElementById('resultprobability');
+				resultprobability.style.display = 'block';
 				if (resultElement) {
 					resultElement.innerHTML = err
-						.map(
-							(result) =>
-								`<p>${result.label} (置信度: ${result.confidence.toFixed(
-									4
-								)})</p>`
-						)
+						.map((result) => {
+							const confidencePercentage = result.confidence * 100;
+							return `
+							<div class="resultElement-row">
+								<div class="resultElement-left">
+									<span class="label-tag">${result.label}</span>
+								</div>
+								<div class="resultElement-right">
+									<div class="label-container">
+										<div class="confidence-bar" style="width: ${confidencePercentage}%;"></div>
+										<span style="margin-left: 5px;">${result.confidence * 100}</span>
+									</div>
+								</div>
+							</div>
+						`;
+						})
 						.join('');
 				}
 			});
@@ -127,17 +143,18 @@ class Ml5Classifier {
 	getMostLikelyCategory(results) {
 		if (results && Array.isArray(results) && results.length > 0) {
 			let highestConfidence = 0;
-			let category = null;
+			let labels = null;
 
 			results.forEach((result) => {
 				if (result.confidence > highestConfidence) {
 					highestConfidence = result.confidence;
-					category = result.label;
+					labels = result.label;
+					//ashcan, trash can, garbage can, wastebin, ash bin, ash-bin, ashbin, dustbin, trash barrel, trash bin
 				}
 			});
 
-			if (category) {
-				this.displayResults(category, highestConfidence);
+			if (labels) {
+				this.processResults(labels);
 			} else {
 				console.warn('No category found with sufficient confidence.');
 			}
@@ -146,83 +163,169 @@ class Ml5Classifier {
 		}
 	}
 
-	displayResults(category, confidence) {
-		const resultSection = document.createElement('div');
-		resultSection.className = 'result-section';
-
-		const { binType, guide } = this.getDisposalGuide(category);
-
-		resultSection.innerHTML = `
-			<div class="result-container">
-				<div class="result-left">
-					<div class="result-card">
-						<h3 class="result-title">分类结果</h3>
-						<div class="result-details">
-							<p>识别类别: <span class="label-tag">${category}</span></p>
-							<p>置信度: ${(confidence * 100).toFixed(2)}%</p>
-						</div>
-					</div>
-					<div class="result-card">
-						<h3 class="result-title">处理指南</h3>
-						<div class="result-details">
-							<p>${guide}</p>
-						</div>
-					</div>
-				</div>
-				<div class="result-right">
-					<div class="bin-image">
-						<img src="${binType}" alt="推荐垃圾桶" />
-					</div>
-				</div>
-			</div>
-		`;
-
-		const existingResults = document.querySelector('.result-section');
-		if (existingResults) {
-			existingResults.remove();
-		}
-
-		document.querySelector('.container').appendChild(resultSection);
+	processResults(labels) {
+		// const { binType, guide } = this.determineWasteCategory(category);
+		let wasteCategory = this.determineWasteCategory(labels);
+		console.log(labels);
+		this.displayResults(wasteCategory, labels);
 	}
 
-	getDisposalGuide(category) {
-		const guides = {
-			glass: {
-				bin: './src/glass.jpg',
-				guide:
-					'玻璃制品应放入玻璃回收箱。请确保清洗干净并去除任何非玻璃部件。建议使用专门的玻璃回收容器，避免破碎造成危险。',
-			},
-			paper: {
-				bin: './src/paper.jpg',
-				guide:
-					'纸张应放入纸类回收箱。请确保纸张干净，无污染。报纸、杂志和办公用纸可以叠放整齐后回收。',
-			},
-			cardboard: {
-				bin: './src/other.jpg',
-				guide:
-					'纸板应折叠后放入纸类回收箱。请去除所有胶带和金属扣件。大型纸箱建议压扁以节省空间。',
-			},
-			plastic: {
-				bin: './src/plastic.jpg',
-				guide:
-					'塑料制品应放入塑料回收箱。请确保清洗干净并压扁以节省空间。注意检查塑料制品上的回收标志。',
-			},
-			metal: {
-				bin: './src/metall.jpg',
-				guide:
-					'金属制品应放入金属回收箱。易拉罐和罐头盒请清洗干净。大型金属物品请送至专门回收点。',
-			},
-			trash: {
-				bin: './src/others.jpg',
-				guide:
-					'无法回收的垃圾请放入其他垃圾箱。请确保安全处理，如有害垃圾需要特殊处理。',
-			},
+	determineWasteCategory(labels) {
+		console.log(labels);
+
+		// Check if "deposit" is directly detected
+		if (labels.includes('deposit')) {
+			console.log('Direct deposit detection');
+			return 'deposit';
+		}
+
+		// Check if it's hazardous waste
+		const hazardousKeywords = config.wasteCategories.hazardous;
+		// const isHazardous = labels.some((label) =>
+		// 	hazardousKeywords.some(
+		// 		(keyword) => label.includes(keyword) || keyword.includes(label)
+		// 	)
+		// );
+
+		const isHazardous = hazardousKeywords.some((keyword) =>
+			labels.includes(keyword)
+		);
+
+		if (isHazardous || labels.includes('hazardous')) {
+			console.log('Classified as hazardous waste');
+			return 'hazardous';
+		}
+
+		// Check if it's food or organic waste
+		const foodKeywords = config.wasteCategories.food;
+		// const isFood = labels.some((label) =>
+		// 	foodKeywords.some(
+		// 		(keyword) => label.includes(keyword) || keyword.includes(label)
+		// 	)
+		// );
+
+		const isFood = foodKeywords.some((keyword) => labels.includes(keyword));
+
+		if (isFood || labels.includes('food')) {
+			console.log('Classified as food waste');
+			return 'food';
+		}
+
+		// First check if item is deposit-returnable
+		const depositKeywords = config.wasteCategories.deposit;
+		// const isDeposit = labels.some((label) =>
+		// 	depositKeywords.some(
+		// 		(keyword) => label.includes(keyword) || keyword.includes(label)
+		// 	)
+		// );
+		const isDeposit = depositKeywords.some((keyword) =>
+			labels.includes(keyword)
+		);
+		// If it's a bottle or can, check if it's likely a deposit item
+		if (
+			isDeposit &&
+			(labels.includes('bottle') ||
+				labels.includes('can') ||
+				labels.includes('container'))
+		) {
+			console.log('Classified as deposit item');
+			return 'deposit';
+		}
+
+		// First check if item is reusable
+		const reusableKeywords = config.wasteCategories.reuse;
+		// if (
+		// 	labels.some((label) =>
+		// 		reusableKeywords.some(
+		// 			(keyword) => label.includes(keyword) || keyword.includes(label)
+		// 		)
+		// 	)
+		// ) {
+		// 	return 'reuse';
+		// }
+
+		const isReusable = reusableKeywords.some((keyword) =>
+			labels.includes(keyword)
+		);
+		if (isReusable) {
+			return 'reuse';
+		}
+
+		for (const [category, keywords] of Object.entries(config.wasteCategories)) {
+			// Skip reuse and deposit as we already checked them
+			if (category === 'reuse' || category === 'deposit') continue;
+			console.log('category' + category);
+			console.log(keywords);
+
+			if (keywords.some((keyword) => labels.includes(keyword))) {
+				return category;
+			}
+		}
+
+		return 'other';
+	}
+
+	displayResults(wasteCategory, labels) {
+		const resultSection = document.getElementById('resultSection');
+		const resultContent = document.getElementById('resultContent');
+		const binImage = document.getElementById('binImage');
+		const disposalGuide = document.getElementById('disposalGuide');
+
+		resultSection.style.display = 'block';
+
+		console.log('Displaying results for category:', wasteCategory); // Debug log
+
+		const categoryMessages = {
+			deposit: 'This is a deposit-return item', // Move deposit to top
+			recyclable: 'This is recyclable waste',
+			hazardous: 'This is hazardous waste',
+			food: 'This is food waste',
+			other: 'This is other waste',
+			reuse: 'This item can be reused',
 		};
 
-		return {
-			binType: guides[category].bin,
-			guide: guides[category].guide,
+		console.log('Category message:', categoryMessages[wasteCategory]); // Debug log
+
+		resultContent.innerHTML = `
+		<div class="result-card">
+			<div class="result-icon ${wasteCategory}"></div>
+			<h3 class="result-title">${categoryMessages[wasteCategory]}</h3>
+			
+			<p class="result-details">Detected features: ${labels
+				.split(',')
+				.map((label) => `<span class="label-tag">${label}</span>`)
+				.join('')}</p>
+
+		</div>
+		`;
+
+		binImage.innerHTML = `
+		<div class="bin-image">
+			<img src="${config.binImages[wasteCategory]}" alt="${wasteCategory} bin">
+		</div>
+		`;
+
+		disposalGuide.innerHTML = this.getDisposalGuide(wasteCategory);
+	}
+
+	getDisposalGuide(wasteCategory) {
+		const guides = {
+			recyclable:
+				'Please ensure items are clean and dry before placing in recycling bin',
+			hazardous:
+				'Please package properly and take to a specialized hazardous waste collection point',
+			food: 'Please drain excess water before placing in food waste bin',
+			other: 'Please place in general waste bin',
+			reuse:
+				'Please take this item to a reuse center or donate it if in good condition',
+			deposit:
+				'Please return this item to a deposit-return machine or store first to get your deposit back. If not accepted, then place it in the recycling bin.',
 		};
+
+		return `<div class="disposal-guide">
+			<h3>Disposal Guide</h3>
+			<p>${guides[wasteCategory]}</p>
+		</div>`;
 	}
 }
 // 页面加载完成后初始化分类器

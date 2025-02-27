@@ -41,6 +41,7 @@ class WasteClassifier {
 			const base64Image = await this.getBase64(file);
 			// Call Google Vision API
 			const result = await this.analyzeImage(base64Image);
+			console.log('Analysis result:', result);
 			// Process analysis results
 			this.processResults(result);
 		} catch (error) {
@@ -134,6 +135,7 @@ class WasteClassifier {
 	}
 
 	determineWasteCategory(labels) {
+		console.log('Determining waste category/labels:', labels); // Debug log
 		const labelNames = labels.map((label) => label.description.toLowerCase());
 		console.log(labelNames);
 
