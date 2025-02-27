@@ -112,17 +112,17 @@ h1 {
 	display: flex;
 	gap: 2rem;
 	margin-bottom: 2rem;
+	align-items: stretch;
 }
 
 .result-left {
 	flex: 1;
+	padding: 1rem;
 }
 
 .result-right {
 	flex: 1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	padding: 1rem;
 }
 
 .bin-image {
@@ -485,4 +485,141 @@ h1 {
 
 .download-btn i {
 	font-size: 1.2rem;
+}
+
+.classification-result {
+	padding: 1.5rem;
+	border-radius: 8px;
+	margin: 1rem 0;
+}
+
+.classification-result p {
+	margin: 0.5rem 0;
+	font-size: 1.1rem;
+}
+
+.classification-result strong {
+	font-size: 1.2rem;
+	color: #2c3e50;
+}
+
+.disposal-guide {
+	padding: 1.5rem;
+	border-radius: 8px;
+}
+
+.disposal-guide h3 {
+	color: #2c3e50;
+	margin-bottom: 1rem;
+	font-size: 1.3rem;
+}
+
+.disposal-guide ul {
+	list-style: none;
+	padding: 0;
+}
+
+.disposal-guide li {
+	margin: 0.8rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: #34495e;
+}
+
+.disposal-guide i {
+	color: #27ae60;
+}
+
+.intro-text {
+	text-align: center;
+	margin-bottom: 2rem;
+	color: #34495e;
+}
+
+.intro-text p {
+	font-size: 1.2rem;
+}
+
+.loading-indicator {
+	text-align: center;
+	margin: 2rem 0;
+	color: #3498db;
+	font-size: 1.2rem;
+}
+
+.loading-indicator i {
+	margin-right: 0.5rem;
+}
+
+.categories-guide {
+	margin-top: 3rem;
+	padding: 2rem;
+	background: white;
+	border-radius: 8px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.categories-guide h2 {
+	text-align: center;
+	color: #2c3e50;
+	margin-bottom: 2rem;
+}
+
+.category-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 1.5rem;
+}
+
+.category-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 1.5rem;
+	background: #f8f9fa;
+	border-radius: 8px;
+	transition: all 0.3s ease;
+}
+
+.category-item:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.category-item i {
+	font-size: 2rem;
+	margin-bottom: 1rem;
+	color: #3498db;
+}
+
+.category-item span {
+	font-size: 1.1rem;
+	color: #2c3e50;
+}
+
+.model-status,
+.status-message {
+	text-align: center;
+	margin: 1rem 0;
+	padding: 1rem;
+	background: rgba(255, 255, 255, 0.9);
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.model-status i,
+.status-message i {
+	margin-right: 0.5rem;
+	color: #3498db;
+}
+
+.error-message {
+	color: #e74c3c;
+	background: rgba(231, 76, 60, 0.1);
+}
+
+.success-message {
+	color: #27ae60;
+	background: rgba(39, 174, 96, 0.1);
 }

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Train Waste Classification Model with ML5</title>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+		/>
+		<link rel="stylesheet" href="styles.css" />
+		<style>
+			.training-stats {
+				background: white;
+				padding: 1rem;
+				border-radius: 8px;
+				margin: 1rem 0;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+			}
+
+			.progress-bar {
+				width: 100%;
+				height: 20px;
+				background-color: #f0f0f0;
+				border-radius: 10px;
+				overflow: hidden;
+				margin: 1rem 0;
+			}
+
+			.progress-bar-fill {
+				height: 100%;
+				background-color: #4caf50;
+				width: 0%;
+				transition: width 0.3s ease;
+			}
+
+			.stat-item {
+				display: flex;
+				justify-content: space-between;
+				margin: 0.5rem 0;
+				padding: 0.5rem;
+				background: #f8f9fa;
+				border-radius: 4px;
+			}
+		</style>
+	</head>
+	<body>
+		<nav class="nav-menu">
+			<div class="nav-container">
+				<a href="index.html" class="nav-item">
+					<i class="fas fa-home"></i>
+					Homepage
+				</a>
+				<a href="visualize.html" class="nav-item">
+					<i class="fas fa-chart-bar"></i>
+					Visualize
+				</a>
+				<a href="train.html" class="nav-item">
+					<i class="fas fa-brain"></i>
+					Train Model
+				</a>
+				<a href="trainml5.html" class="nav-item active">
+					<i class="fas fa-microchip"></i>
+					Train ML5
+				</a>
+				<a href="wasteClassifier.html" class="nav-item">
+					<i class="fas fa-recycle"></i>
+					Waste Classifier-tf
+				</a>
+			</div>
+		</nav>
+
+		<div class="container">
+			<h1>Train Waste Classification Model with ML5</h1>
+			<div id="datasetStatus" class="status-message">
+				<i class="fas fa-spinner fa-spin"></i>
+				<span>等待开始训练...</span>
+			</div>
+
+			<div class="training-content">
+				<div class="model-config">
+					<h2>Model Configuration</h2>
+					<!-- <div class="config-grid">
+						<div class="config-item">
+							<label for="batchSize">Batch Size:</label>
+							<input type="number" id="batchSize" value="32" min="1" />
+						</div>
+						<div class="config-item">
+							<label for="epochs">Epochs:</label>
+							<input type="number" id="epochs" value="50" min="1" />
+						</div>
+					</div> -->
+					<!-- <button id="classifyButton" class="train-btn">
+						<i class="fas fa-play"></i> Start Training
+					</button> -->
+				</div>
+
+				<!-- <div class="training-progress">
+					<h2>Training Progress</h2>
+					<div class="progress-bar">
+						<div class="progress-bar-fill" id="progressBar"></div>
+					</div>
+					<div class="training-stats" id="trainingStats">
+						<div class="stat-item">
+							<span>Current Epoch:</span>
+							<span id="currentEpoch">0</span>
+						</div>
+						<div class="stat-item">
+							<span>Loss:</span>
+							<span id="currentLoss">-</span>
+						</div>
+						<div class="stat-item">
+							<span>Accuracy:</span>
+							<span id="currentAccuracy">-</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="model-evaluation">
+					<h2>Model Evaluation</h2>
+					<div id="evaluationResults"></div>
+				</div> -->
+
+				<img id="my-image" src="./src/glass.jpg" alt="测试图像" width="300" />
+				<button id="classifyButton">分类图像</button>
+				<div id="result"></div>
+			</div>
+		</div>
+
+		<script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+		;
+		<!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+		<script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script> -->
+		<script>
+			// 添加错误处理
+			window.addEventListener('error', function (e) {
+				console.error('Global error:', e);
+				alert('训练过程出错，请刷新页面重试');
+			});
+		</script>
+		<script src="ml5.js"></script>
+	</body>
+</html>

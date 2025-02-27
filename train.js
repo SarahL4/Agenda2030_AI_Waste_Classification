@@ -3,6 +3,12 @@ class WasteClassifier {
 		this.model = null;
 		this.IMAGE_SIZE = 160;
 		this.NUM_CLASSES = 6;
+		this.batchSize = 32;
+		this.dataset = {
+			images: [],
+			labels: [],
+			categories: [],
+		};
 		this.categories = [
 			'glass',
 			'paper',
@@ -15,9 +21,62 @@ class WasteClassifier {
 		this.setupEventListeners();
 	}
 
+	async loadDatasetInBatches() {
+		try {
+			// 首先加载元数据
+			const response = await fetch(
+				'./trained_model/waste-classifier/metadata.json'
+			);
+			const metadata = await response.json();
+			const numChunks = metadata.num_chunks;
+
+			// 逐个加载数据块
+			for (let i = 0; i < numChunks; i++) {
+				const progress = ((i + 1) / numChunks) * 100;
+				document.getElementById(
+					'datasetStatus'
+				).innerHTML = `<i class="fas fa-spinner fa-spin"></i> 正在加载数据集... ${progress.toFixed(
+					1
+				)}%`;
+
+				const chunkResponse = await fetch(
+					`./trained_model/waste-classifier/dataset_chunk_${i}.json`
+				);
+				const chunkData = await chunkResponse.json();
+
+				// 合并数据
+				this.dataset.images.push(...chunkData.images);
+				this.dataset.labels.push(...chunkData.labels);
+				this.dataset.categories = chunkData.categories;
+
+				// 给浏览器一些时间来处理UI更新
+				await new Promise((resolve) => setTimeout(resolve, 10));
+			}
+
+			document.getElementById('datasetStatus').innerHTML =
+				'<i class="fas fa-check"></i> 数据集加载完成';
+
+			return this.dataset;
+		} catch (error) {
+			console.error('加载数据集失败:', error);
+			alert('无法加载数据集，请确保已运行数据预处理脚本。');
+			throw error;
+		}
+	}
+
 	setupEventListeners() {
 		const trainButton = document.getElementById('trainButton');
+		const saveButton = document.createElement('button');
+		saveButton.id = 'saveButton';
+		saveButton.className = 'download-btn';
+		saveButton.innerHTML = '<i class="fas fa-download"></i> Save Model';
+		saveButton.style.display = 'none';
+
 		trainButton.addEventListener('click', () => this.startTraining());
+		saveButton.addEventListener('click', () => this.saveModel());
+
+		// 添加保存按钮到页面
+		trainButton.parentNode.insertBefore(saveButton, trainButton.nextSibling);
 	}
 
 	createModel() {
@@ -186,6 +245,9 @@ class WasteClassifier {
 			trainButton.innerHTML =
 				'<i class="fas fa-spinner fa-spin"></i> Loading Data...';
 
+			// 加载数据集
+			const dataset = await this.loadDatasetInBatches();
+
 			// 创建模型
 			this.model = this.createModel();
 
@@ -202,8 +264,8 @@ class WasteClassifier {
 				metrics: ['accuracy'],
 			});
 
-			// 加载数据
-			const data = await this.loadAndPreprocessData();
+			// 准备训练数据
+			const data = this.prepareTrainingData(dataset);
 
 			// 开始训练
 			trainButton.innerHTML =
@@ -268,6 +330,20 @@ class WasteClassifier {
 			// 训练完成
 			trainButton.innerHTML = '<i class="fas fa-check"></i> Training Complete';
 			await this.evaluateModel(data);
+
+			// 保存模型
+			try {
+				await this.model.save('indexeddb://waste-classifier');
+				console.log('模型已保存到 IndexedDB');
+
+				await this.model.save('downloads://waste-classifier');
+				console.log('模型文件已下载');
+
+				alert('模型已成功保存！');
+			} catch (error) {
+				console.error('保存模型失败:', error);
+				alert('保存模型失败，请查看控制台了解详情。');
+			}
 		} catch (error) {
 			console.error('Training error:', error);
 			trainButton.innerHTML =
@@ -298,21 +374,6 @@ class WasteClassifier {
 			}
 		);
 
-		// 保存模型
-		try {
-			// 使用 IndexedDB 保存模型
-			await this.model.save('indexeddb://waste-classifier');
-			alert(
-				'模型已成功保存到浏览器的 IndexedDB 中。现在可以在 Waste Classifier-tf 页面中使用此模型。'
-			);
-		} catch (error) {
-			console.error('Failed to save model:', error);
-			alert('模型保存失败。请确保浏览器支持 IndexedDB 且有足够的存储空间。');
-			// 如果保存失败，尝试下载模型
-			await this.model.save('downloads://model');
-			alert('模型已下载到本地。如需使用，请手动加载此模型。');
-		}
-
 		// 显示评估结果
 		const testResults = document.getElementById('testResults');
 		const accuracy =
@@ -327,6 +388,46 @@ class WasteClassifier {
 				<p>Total Images: ${predArray.length}</p>
 			</div>
 		`;
+	}
+
+	async saveModel() {
+		if (!this.model) {
+			alert('没有可保存的模型。请先训练模型。');
+			return;
+		}
+
+		try {
+			// 保存到 IndexedDB
+			await this.model.save('indexeddb://waste-classifier');
+			console.log('模型已保存到 IndexedDB');
+
+			// 下载模型文件
+			await this.model.save('downloads://waste-classifier');
+			console.log('模型文件已下载');
+
+			alert('模型已成功保存！');
+		} catch (error) {
+			console.error('保存模型失败:', error);
+			alert('保存模型失败，请查看控制台了解详情。');
+		}
+	}
+
+	prepareTrainingData(dataset) {
+		// 转换为张量
+		const xs = tf.tensor4d(dataset.images, [
+			dataset.images.length,
+			this.IMAGE_SIZE,
+			this.IMAGE_SIZE,
+			3,
+		]);
+
+		// 转换标签为 one-hot 编码
+		const ys = tf.oneHot(
+			tf.tensor1d(dataset.labels, 'int32'),
+			this.NUM_CLASSES
+		);
+
+		return { xs, ys };
 	}
 }
 
