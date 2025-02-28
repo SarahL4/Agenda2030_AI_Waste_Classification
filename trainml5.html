@@ -85,16 +85,11 @@
 					<i class="fas fa-upload"></i> Upload Image
 				</button>
 				<div style="display: flex; align-items: center;justify-self: center">
-					<div id="imagePreview" style="margin-right: 10px;"></div>
-					<button id="classifyButton" class="train-btn" style="display: none;">Start Classify</button>
-				</button>
-			</div>
-
-			<!-- <div>
-				<button id="classifyButton" class="train-btn">
-					<i class="fas fa-play"></i> Start classify
-				</button>
-			</div> -->
+					<div id="imagePreview"></div>
+					<button id="classifyButton" class="train-btn" style="display: none;">
+						Start Classify
+					</button>
+				</div>
 
 			<div class="result-section" id="resultSection" style="display: none">
 				<h2>Analysis Result</h2>
@@ -120,10 +115,8 @@
 			</div>
 		</div>
 
-		<!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-		<script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script> -->
 		<script>
-			// 添加错误处理
+			// Add error handling
 			window.addEventListener('error', function (e) {
 				console.error('Global error:', e);
 				alert('训练过程出错，请刷新页面重试');

@@ -16,48 +16,56 @@ class TFWasteClassifier {
 
 	async saveModel() {
 		if (!this.model) {
-			alert('没有可下载的模型。请先加载模型。');
+			alert('No model available for download. Please load a model first.');
 			return;
 		}
 		try {
 			await this.model.save('downloads://model');
 			alert(
-				'模型已开始下载。您可以将下载的模型放在 trained_model/waste-classifier/ 目录下作为预训练模型使用。'
+				'The model has started downloading. You can place the downloaded model in the trained_model/waste-classifier/ directory to use it as a pre-trained model.'
 			);
 		} catch (error) {
-			console.error('下载模型失败:', error);
-			alert('下载模型失败，请查看控制台了解详情。');
+			console.error('Failed to download the model:', error);
+			alert(
+				'Failed to download the model. Please check the console for more details.'
+			);
 		}
 	}
 
 	async loadModel() {
 		try {
-			// 首先尝试加载预训练模型
+			// First, try to load the pre-trained model
 			try {
 				this.model = await tf.loadLayersModel(
 					'./trained_model/waste-classifier/model.json'
 				);
-				console.log('预训练模型加载成功');
-				alert('预训练模型加载成功！可以开始上传图片进行分类了。');
+				console.log('Pre-trained model loaded successfully');
+				alert(
+					'Pre-trained model loaded successfully! You can start uploading images for classification.'
+				);
 				return;
 			} catch (pretrainedError) {
-				console.log('未找到预训练模型，尝试加载本地训练的模型');
+				console.log(
+					'Pre-trained model not found, trying to load locally trained model'
+				);
 			}
 
-			// 如果预训练模型不存在，尝试加载本地训练的模型
+			// If the pre-trained model does not exist, try to load the locally trained model
 			this.model = await tf.loadLayersModel('indexeddb://waste-classifier');
-			alert('模型加载成功！可以开始上传图片进行分类了。');
+			alert(
+				'Model loaded successfully! You can start uploading images for classification.'
+			);
 			// this.addDownloadButton();
 		} catch (error) {
 			console.error('Error loading TensorFlow.js model:', error);
 			alert(
-				'无法加载模型。请先在 Train Model 页面训练并保存模型。\n\n' +
-					'如果已经训练过模型，可能是因为：\n' +
-					'1. 浏览器不支持 IndexedDB\n' +
-					'2. 浏览器数据被清除\n' +
-					'3. 使用了不同的浏览器\n' +
-					'4. trained_model 文件夹中没有预训练模型\n\n' +
-					'请重新训练模型或使用相同的浏览器。'
+				'Unable to load the model. Please train and save the model on the Train Model page first.\n\n' +
+					'If you have already trained the model, it might be because:\n' +
+					'1. The browser does not support IndexedDB\n' +
+					'2. Browser data has been cleared\n' +
+					'3. A different browser is being used\n' +
+					'4. There is no pre-trained model in the trained_model folder\n\n' +
+					'Please retrain the model or use the same browser.'
 			);
 		}
 	}
@@ -94,7 +102,7 @@ class TFWasteClassifier {
 			return;
 		}
 
-		// 预处理图片
+		// Preprocess the image
 		const tensor = tf.tidy(() => {
 			return tf.browser
 				.fromPixels(img)
@@ -104,13 +112,13 @@ class TFWasteClassifier {
 				.expandDims();
 		});
 
-		// 进行预测
+		// predict
 		const predictions = await this.model.predict(tensor).data();
 		const categoryIndex = predictions.indexOf(Math.max(...predictions));
 		const category = this.categories[categoryIndex];
 		const confidence = predictions[categoryIndex];
 
-		// 显示结果
+		// Show result
 		this.displayResults(category, confidence);
 		tensor.dispose();
 	}
@@ -158,7 +166,7 @@ class TFWasteClassifier {
 							</div>
 						</div>
 						<div class="result-right bin-image">
-							<img src="${binType}" alt="推荐垃圾桶" />
+							<img src="${binType}" alt="bin type" />
 						</div>
 					</div>
 
@@ -208,32 +216,32 @@ class TFWasteClassifier {
 			glass: {
 				bin: './src/glass.jpg',
 				guide:
-					'玻璃制品应放入玻璃回收箱。请确保清洗干净并去除任何非玻璃部件。建议使用专门的玻璃回收容器，避免破碎造成危险。',
+					'Glass items should be placed in the glass recycling bin. Please ensure they are clean and remove any non-glass parts. It is recommended to use a dedicated glass recycling container to avoid breakage hazards.',
 			},
 			paper: {
 				bin: './src/paper.jpg',
 				guide:
-					'纸张应放入纸类回收箱。请确保纸张干净，无污染。报纸、杂志和办公用纸可以叠放整齐后回收。',
+					'Paper should be placed in the paper recycling bin. Please ensure the paper is clean and uncontaminated. Newspapers, magazines, and office paper can be stacked neatly for recycling.',
 			},
 			cardboard: {
 				bin: './src/recyclable.jpg',
 				guide:
-					'纸板应折叠后放入纸类回收箱。请去除所有胶带和金属扣件。大型纸箱建议压扁以节省空间。',
+					'Cardboard should be folded and placed in the paper recycling bin. Please remove all tape and metal fasteners. Large boxes should be flattened to save space.',
 			},
 			plastic: {
 				bin: './src/plastic.jpg',
 				guide:
-					'塑料制品应放入塑料回收箱。请确保清洗干净并压扁以节省空间。注意检查塑料制品上的回收标志。',
+					'Plastic items should be placed in the plastic recycling bin. Please ensure they are clean and flattened to save space. Check the recycling symbols on plastic items.',
 			},
 			metal: {
 				bin: './src/metall.jpg',
 				guide:
-					'金属制品应放入金属回收箱。易拉罐和罐头盒请清洗干净。大型金属物品请送至专门回收点。',
+					'Metal items should be placed in the metal recycling bin. Clean cans and tins thoroughly. Large metal items should be taken to a dedicated recycling point.',
 			},
 			trash: {
 				bin: './src/others.jpg',
 				guide:
-					'无法回收的垃圾请放入其他垃圾箱。请确保安全处理，如有害垃圾需要特殊处理。',
+					'Non-recyclable waste should be placed in the general trash bin. Ensure safe disposal, and special handling is required for hazardous waste.',
 			},
 		};
 

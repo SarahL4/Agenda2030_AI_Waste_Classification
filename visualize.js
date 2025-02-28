@@ -31,13 +31,13 @@ class DatasetVisualizer {
 	}
 
 	async visualizeDistribution(distribution) {
-		// 准备数据
+		// Preprocess data for tfvis
 		const data = Object.entries(distribution).map(([category, count]) => ({
 			index: category,
 			value: count,
 		}));
 
-		// 使用 tfvis 创建柱状图
+		// Create a bar chart using tfvis
 		const surface = { name: 'Dataset Distribution', tab: 'Charts' };
 
 		await tfvis.render.barchart(surface, data, {
@@ -50,7 +50,7 @@ class DatasetVisualizer {
 			),
 		});
 
-		// 显示统计信息
+		// show statistics
 		const totalImages = Object.values(distribution).reduce((a, b) => a + b, 0);
 		const stats = {
 			'Total Images': totalImages,
