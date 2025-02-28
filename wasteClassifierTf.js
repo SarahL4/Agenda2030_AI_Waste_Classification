@@ -39,7 +39,6 @@ class TFWasteClassifier {
 				);
 				console.log('预训练模型加载成功');
 				alert('预训练模型加载成功！可以开始上传图片进行分类了。');
-				this.addDownloadButton();
 				return;
 			} catch (pretrainedError) {
 				console.log('未找到预训练模型，尝试加载本地训练的模型');
@@ -48,7 +47,7 @@ class TFWasteClassifier {
 			// 如果预训练模型不存在，尝试加载本地训练的模型
 			this.model = await tf.loadLayersModel('indexeddb://waste-classifier');
 			alert('模型加载成功！可以开始上传图片进行分类了。');
-			this.addDownloadButton();
+			// this.addDownloadButton();
 		} catch (error) {
 			console.error('Error loading TensorFlow.js model:', error);
 			alert(
@@ -60,20 +59,6 @@ class TFWasteClassifier {
 					'4. trained_model 文件夹中没有预训练模型\n\n' +
 					'请重新训练模型或使用相同的浏览器。'
 			);
-		}
-	}
-
-	addDownloadButton() {
-		const container = document.querySelector('.container');
-		const existingButton = document.getElementById('downloadModelBtn');
-
-		if (!existingButton) {
-			const downloadBtn = document.createElement('button');
-			downloadBtn.id = 'downloadModelBtn';
-			downloadBtn.className = 'download-btn';
-			downloadBtn.innerHTML = '<i class="fas fa-download"></i> 下载模型';
-			downloadBtn.onclick = () => this.saveModel();
-			container.insertBefore(downloadBtn, container.firstChild.nextSibling);
 		}
 	}
 
@@ -154,28 +139,48 @@ class TFWasteClassifier {
 		const resultSection = document.createElement('div');
 		resultSection.className = 'result-section';
 
-		const { binType, guide } = this.getDisposalGuide(category);
+		const { categoryMessages, binType, guide } =
+			this.getDisposalGuide(category);
 
 		resultSection.innerHTML = `
-			<div class="result-container">
-				<div class="result-left">
-					<div class="result-card">
-						<h3 class="result-title">分类结果</h3>
-						<div class="result-details">
-							<p>识别类别: <span class="label-tag">${category}</span></p>
-							<p>置信度: ${(confidence * 100).toFixed(2)}%</p>
+			<div class="result-section">
+				<h2>Analysis Result</h2>
+				<div class="result-container">
+
+					<div class="result-row">
+						<div class="result-left">
+							<div class="result-card">
+								<h3 class="result-title">${categoryMessages[category]}</h3>
+								<div class="result-details">
+									<p>Detected features: <span class="label-tag">${category}</span></p>
+									<p>Classification confidence: ${(confidence * 100).toFixed(2)}%</p>
+								</div>
+							</div>
+						</div>
+						<div class="result-right bin-image">
+							<img src="${binType}" alt="推荐垃圾桶" />
 						</div>
 					</div>
-					<div class="result-card">
-						<h3 class="result-title">处理指南</h3>
-						<div class="result-details">
+
+					<div class="result-row">
+						<div class="disposalGuide">
+							<h3>Disposal Guide</h3>
 							<p>${guide}</p>
 						</div>
 					</div>
 				</div>
-				<div class="result-right">
-					<div class="bin-image">
-						<img src="${binType}" alt="推荐垃圾桶" />
+			</div>
+
+
+			<div class="result-section" id="resultSection" style="display: none">
+				<h2>Analysis Result</h2>
+				<div class="result-container">
+					<div class="result-row">
+						<div class="result-left" id="resultContent"></div>
+						<div class="result-right" id="binImage"></div>
+					</div>
+					<div class="result-row">
+						<div id="disposalGuide" class="disposalGuide"></div>
 					</div>
 				</div>
 			</div>
@@ -190,6 +195,15 @@ class TFWasteClassifier {
 	}
 
 	getDisposalGuide(category) {
+		const categoryMessages = {
+			glass: 'This is a recyclable waste',
+			paper: 'This is recyclable waste',
+			cardboard: 'This is recyclable waste',
+			plastic: 'This is plastic waste',
+			metal: 'This is recyclable waste',
+			trash: 'This is other waste',
+		};
+
 		const guides = {
 			glass: {
 				bin: './src/glass.jpg',
@@ -202,7 +216,7 @@ class TFWasteClassifier {
 					'纸张应放入纸类回收箱。请确保纸张干净，无污染。报纸、杂志和办公用纸可以叠放整齐后回收。',
 			},
 			cardboard: {
-				bin: './src/other.jpg',
+				bin: './src/recyclable.jpg',
 				guide:
 					'纸板应折叠后放入纸类回收箱。请去除所有胶带和金属扣件。大型纸箱建议压扁以节省空间。',
 			},
@@ -224,6 +238,7 @@ class TFWasteClassifier {
 		};
 
 		return {
+			categoryMessages: categoryMessages,
 			binType: guides[category].bin,
 			guide: guides[category].guide,
 		};
@@ -231,5 +246,14 @@ class TFWasteClassifier {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+	const navItems = document.querySelectorAll('.nav-item');
+
+	navItems.forEach((item) => {
+		if (item.href === window.location.href) {
+			item.classList.add('active');
+		} else {
+			item.classList.remove('active');
+		}
+	});
 	new TFWasteClassifier();
 });

@@ -23,43 +23,37 @@ class WasteClassifier {
 
 	async loadDatasetInBatches() {
 		try {
-			// 首先加载元数据
+			// First, load the metadata
 			const response = await fetch(
 				'./trained_model/waste-classifier/metadata.json'
 			);
 			const metadata = await response.json();
 			const numChunks = metadata.num_chunks;
 
-			// 逐个加载数据块
+			// Load data chunks one by one
 			for (let i = 0; i < numChunks; i++) {
 				const progress = ((i + 1) / numChunks) * 100;
-				document.getElementById(
-					'datasetStatus'
-				).innerHTML = `<i class="fas fa-spinner fa-spin"></i> 正在加载数据集... ${progress.toFixed(
-					1
-				)}%`;
 
 				const chunkResponse = await fetch(
 					`./trained_model/waste-classifier/dataset_chunk_${i}.json`
 				);
 				const chunkData = await chunkResponse.json();
 
-				// 合并数据
+				// Merge data
 				this.dataset.images.push(...chunkData.images);
 				this.dataset.labels.push(...chunkData.labels);
 				this.dataset.categories = chunkData.categories;
 
-				// 给浏览器一些时间来处理UI更新
+				// Give the browser some time to process UI updates
 				await new Promise((resolve) => setTimeout(resolve, 10));
 			}
 
-			document.getElementById('datasetStatus').innerHTML =
-				'<i class="fas fa-check"></i> 数据集加载完成';
-
 			return this.dataset;
 		} catch (error) {
-			console.error('加载数据集失败:', error);
-			alert('无法加载数据集，请确保已运行数据预处理脚本。');
+			console.error('Failed to load dataset:', error);
+			alert(
+				'Unable to load dataset, please ensure the data preprocessing script has been run.'
+			);
 			throw error;
 		}
 	}
@@ -75,14 +69,14 @@ class WasteClassifier {
 		trainButton.addEventListener('click', () => this.startTraining());
 		saveButton.addEventListener('click', () => this.saveModel());
 
-		// 添加保存按钮到页面
+		// Add save button to the page
 		trainButton.parentNode.insertBefore(saveButton, trainButton.nextSibling);
 	}
 
 	createModel() {
 		const model = tf.sequential();
 
-		// 输入标准化层
+		// Input normalization layer
 		model.add(
 			tf.layers.rescaling({
 				inputShape: [this.IMAGE_SIZE, this.IMAGE_SIZE, 3],
@@ -90,7 +84,7 @@ class WasteClassifier {
 			})
 		);
 
-		// 第一个卷积块
+		// First convolutional block
 		model.add(
 			tf.layers.conv2d({
 				filters: 32,
@@ -110,7 +104,7 @@ class WasteClassifier {
 		model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
 		model.add(tf.layers.batchNormalization());
 
-		// 第二个卷积块
+		// Second convolutional block
 		model.add(
 			tf.layers.conv2d({
 				filters: 64,
@@ -130,7 +124,7 @@ class WasteClassifier {
 		model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
 		model.add(tf.layers.batchNormalization());
 
-		// 第三个卷积块
+		// Third convolutional block
 		model.add(
 			tf.layers.conv2d({
 				filters: 64,
@@ -150,10 +144,10 @@ class WasteClassifier {
 		model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
 		model.add(tf.layers.batchNormalization());
 
-		// 展平层
+		// Flatten layer
 		model.add(tf.layers.flatten());
 
-		// 更复杂的全连接层
+		// More complex fully connected layer
 		model.add(tf.layers.dense({ units: 128, activation: 'relu' }));
 		model.add(tf.layers.dropout({ rate: 0.5 }));
 		model.add(tf.layers.dense({ units: 64, activation: 'relu' }));
@@ -174,8 +168,8 @@ class WasteClassifier {
 		for (let i = 0; i < this.categories.length; i++) {
 			const category = this.categories[i];
 			try {
-				// 加载每个类别的图片
-				// 减少每类的训练图片数量
+				// Load images for each category
+				// Reduce the number of training images per category
 				const imageFiles = Array.from(
 					{ length: 40 },
 					(_, index) => `${category}${index + 1}.jpg`
@@ -189,11 +183,11 @@ class WasteClassifier {
 				}
 			} catch (error) {
 				console.error(`Error loading ${category} images:`, error);
-				continue; // 跳过加载失败的图片
+				continue; // Skip images that failed to load
 			}
 		}
 
-		// 转换为张量
+		// Convert to tensor
 		const xs = tf.stack(data.images, 0);
 		const ys = tf.oneHot(tf.tensor1d(data.labels, 'int32'), this.NUM_CLASSES);
 
@@ -212,18 +206,18 @@ class WasteClassifier {
 
 	preprocessImage(img) {
 		return tf.tidy(() => {
-			// 更强的数据增强
+			// Stronger data augmentation
 			const tensor = tf.browser
 				.fromPixels(img)
 				.resizeNearestNeighbor([this.IMAGE_SIZE, this.IMAGE_SIZE])
-				// 随机翻转
+				// Random flip
 				.reshape([1, this.IMAGE_SIZE, this.IMAGE_SIZE, 3])
 				.tile([2, 1, 1, 1]);
 
 			const augmented = tf.tidy(() => {
-				// 随机亮度
+				// Random brightness
 				const brightness = tensor.mul(tf.randomUniform([2, 1, 1, 1], 0.8, 1.2));
-				// 随机对比度
+				// Random contrast
 				const contrast = brightness
 					.sub(brightness.mean())
 					.mul(tf.randomUniform([2, 1, 1, 1], 0.8, 1.2))
@@ -231,7 +225,7 @@ class WasteClassifier {
 				return contrast.clipByValue(0, 255);
 			});
 
-			// 返回增强后的单个图像
+			// Return the augmented single image
 			return augmented
 				.slice([0], [1])
 				.reshape([this.IMAGE_SIZE, this.IMAGE_SIZE, 3]);
@@ -245,13 +239,13 @@ class WasteClassifier {
 			trainButton.innerHTML =
 				'<i class="fas fa-spinner fa-spin"></i> Loading Data...';
 
-			// 加载数据集
+			// Load dataset
 			const dataset = await this.loadDatasetInBatches();
 
-			// 创建模型
+			// Create model
 			this.model = this.createModel();
 
-			// 配置模型
+			// Configure model
 			const learningRate = parseFloat(
 				document.getElementById('learningRate').value
 			);
@@ -264,18 +258,16 @@ class WasteClassifier {
 				metrics: ['accuracy'],
 			});
 
-			// 准备训练数据
+			// Prepare training data
 			const data = this.prepareTrainingData(dataset);
 
-			// 开始训练
+			// Start training
 			trainButton.innerHTML =
 				'<i class="fas fa-spinner fa-spin"></i> Training...';
 
-			// 创建损失和准确率的图表容器
+			// Create containers for loss and accuracy charts
 			const lossContainer = document.getElementById('lossChart');
 			const accuracyContainer = document.getElementById('accuracyChart');
-
-			// 存储训练历史
 			const history = {
 				loss: [],
 				accuracy: [],
@@ -287,11 +279,11 @@ class WasteClassifier {
 				validationSplit: 0.2,
 				callbacks: {
 					onEpochEnd: (epoch, logs) => {
-						// 更新历史数据
+						// Update history data
 						history.loss.push({ x: epoch, y: logs.loss });
 						history.accuracy.push({ x: epoch, y: logs.acc });
 
-						// 更新图表
+						// Update charts
 						tfvis.render.linechart(
 							{ name: 'Loss', tab: 'Training' },
 							{ values: history.loss },
@@ -314,7 +306,7 @@ class WasteClassifier {
 							}
 						);
 
-						// 更新进度统计
+						// Update progress stats
 						const stats = document.getElementById('progressStats');
 						stats.innerHTML = `
 							<p>Epoch ${epoch + 1}/${epochs}</p>
@@ -327,22 +319,22 @@ class WasteClassifier {
 				},
 			});
 
-			// 训练完成
+			// Training complete
 			trainButton.innerHTML = '<i class="fas fa-check"></i> Training Complete';
 			await this.evaluateModel(data);
 
-			// 保存模型
+			// Save model
 			try {
 				await this.model.save('indexeddb://waste-classifier');
-				console.log('模型已保存到 IndexedDB');
+				console.log('Model saved to IndexedDB');
 
 				await this.model.save('downloads://waste-classifier');
-				console.log('模型文件已下载');
+				console.log('Model files downloaded');
 
-				alert('模型已成功保存！');
+				alert('Model successfully saved!');
 			} catch (error) {
-				console.error('保存模型失败:', error);
-				alert('保存模型失败，请查看控制台了解详情。');
+				console.error('Failed to save model:', error);
+				alert('Failed to save model, please check the console for details.');
 			}
 		} catch (error) {
 			console.error('Training error:', error);
@@ -355,8 +347,7 @@ class WasteClassifier {
 		const predictions = this.model.predict(data.xs);
 		const predArray = await predictions.argMax(1).array();
 		const labelArray = await data.ys.argMax(1).array();
-
-		// 计算混淆矩阵
+		// Calculate confusion matrix
 		const confusionMatrix = Array(this.NUM_CLASSES)
 			.fill(0)
 			.map(() => Array(this.NUM_CLASSES).fill(0));
@@ -365,7 +356,7 @@ class WasteClassifier {
 			confusionMatrix[labelArray[i]][predArray[i]] += 1;
 		}
 
-		// 显示混淆矩阵
+		// Display confusion matrix
 		await tfvis.render.confusionMatrix(
 			{ name: 'Confusion Matrix', tab: 'Evaluation' },
 			{
@@ -374,7 +365,7 @@ class WasteClassifier {
 			}
 		);
 
-		// 显示评估结果
+		// Display evaluation results
 		const testResults = document.getElementById('testResults');
 		const accuracy =
 			predArray.reduce(
@@ -392,36 +383,33 @@ class WasteClassifier {
 
 	async saveModel() {
 		if (!this.model) {
-			alert('没有可保存的模型。请先训练模型。');
+			alert('No model available to save. Please train the model first.');
 			return;
 		}
 
 		try {
 			// 保存到 IndexedDB
 			await this.model.save('indexeddb://waste-classifier');
-			console.log('模型已保存到 IndexedDB');
+			console.log('Model saved to IndexedDB');
 
-			// 下载模型文件
+			// Download model files
 			await this.model.save('downloads://waste-classifier');
-			console.log('模型文件已下载');
+			console.log('Model files downloaded');
 
-			alert('模型已成功保存！');
+			alert('Model successfully saved!');
 		} catch (error) {
-			console.error('保存模型失败:', error);
-			alert('保存模型失败，请查看控制台了解详情。');
+			console.error('Failed to save model:', error);
+			alert('Failed to save model, please check the console for details.');
 		}
 	}
 
 	prepareTrainingData(dataset) {
-		// 转换为张量
-		const xs = tf.tensor4d(dataset.images, [
-			dataset.images.length,
-			this.IMAGE_SIZE,
-			this.IMAGE_SIZE,
-			3,
-		]);
+		// Convert to tensor
+		const xs = tf
+			.concat(dataset.images)
+			.reshape([dataset.images.length, this.IMAGE_SIZE, this.IMAGE_SIZE, 3]);
 
-		// 转换标签为 one-hot 编码
+		// Convert labels to one-hot encoding
 		const ys = tf.oneHot(
 			tf.tensor1d(dataset.labels, 'int32'),
 			this.NUM_CLASSES

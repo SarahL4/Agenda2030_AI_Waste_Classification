@@ -48,9 +48,13 @@
 	<body>
 		<nav class="nav-menu">
 			<div class="nav-container">
-				<a href="index.html" class="nav-item">
+				<a href="index.html" class="nav-item active">
 					<i class="fas fa-home"></i>
-					Homepage
+					Smart Waste Classifier
+				</a>
+				<a href="trainml5.html" class="nav-item">
+					<i class="fas fa-microchip"></i>
+					Smart Waste Classifier ML5
 				</a>
 				<a href="visualize.html" class="nav-item">
 					<i class="fas fa-chart-bar"></i>
@@ -58,15 +62,11 @@
 				</a>
 				<a href="train.html" class="nav-item">
 					<i class="fas fa-brain"></i>
-					Train Model
-				</a>
-				<a href="trainml5.html" class="nav-item active">
-					<i class="fas fa-microchip"></i>
-					Train ML5
+					Train Model tensorflow
 				</a>
 				<a href="wasteClassifier.html" class="nav-item">
 					<i class="fas fa-recycle"></i>
-					Waste Classifier-tf
+					Smart Waste Classifier tensorflow
 				</a>
 			</div>
 		</nav>
@@ -84,12 +84,17 @@
 				<button id="uploadBtn">
 					<i class="fas fa-upload"></i> Upload Image
 				</button>
-				<div id="imagePreview"></div>
+				<div style="display: flex; align-items: center;justify-self: center">
+					<div id="imagePreview" style="margin-right: 10px;"></div>
+					<button id="classifyButton" class="train-btn" style="display: none;">Start Classify</button>
+				</button>
 			</div>
 
-			<div>
-				<button id="classifyButton" class="btn btn-primary">分类图像</button>
-			</div>
+			<!-- <div>
+				<button id="classifyButton" class="train-btn">
+					<i class="fas fa-play"></i> Start classify
+				</button>
+			</div> -->
 
 			<div class="result-section" id="resultSection" style="display: none">
 				<h2>Analysis Result</h2>
@@ -99,7 +104,7 @@
 						<div class="result-right" id="binImage"></div>
 					</div>
 					<div class="result-row">
-						<div id="disposalGuide"></div>
+						<div id="disposalGuide" class="disposalGuide"></div>
 					</div>
 				</div>
 			</div>

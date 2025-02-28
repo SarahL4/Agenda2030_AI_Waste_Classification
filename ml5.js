@@ -2,14 +2,6 @@
 class Ml5Classifier {
 	constructor() {
 		this.model = null;
-		this.categories = [
-			'glass',
-			'paper',
-			'cardboard',
-			'plastic',
-			'metal',
-			'trash',
-		];
 		this.classifier = null; // Initialize the classifier here
 		this.setupEventListeners();
 		this.initializeClassifier(); // Call the method to initialize the classifier
@@ -22,7 +14,6 @@ class Ml5Classifier {
 		});
 	}
 	setupEventListeners() {
-		// 绑定分类按钮的点击事件
 		const uploadBtn = document.getElementById('uploadBtn');
 		const imageInput = document.getElementById('imageInput');
 		const classifyButton = document.getElementById('classifyButton');
@@ -38,11 +29,6 @@ class Ml5Classifier {
 				this.processImage(file).then((processImg) => (img = processImg));
 			}
 		});
-
-		// classifyButton.addEventListener('click', function () {
-		// 	console.log('Button clicked');
-		// 	// Your classification logic here
-		// });
 
 		if (!classifyButton) {
 			console.error('classifyButton not found!');
@@ -83,32 +69,29 @@ class Ml5Classifier {
 
 	displayImage(img) {
 		const preview = document.getElementById('imagePreview');
+		const classifyButton = document.getElementById('classifyButton');
 		preview.innerHTML = '';
 		preview.appendChild(img);
+		classifyButton.style.display = 'inline-block';
 	}
 
-	// 分类图像的函数
+	// Function to classify the image
 	async classifyImage(img) {
 		if (!img) {
 			console.error('未找到图像元素');
 			return;
 		}
 
-		// 使用分类器对图像进行分类
+		// Use the classifier to classify the image
 		if (this.classifier) {
 			this.classifier.classify(img, (err, results) => {
 				if (results) {
 					console.error('分类出错:', results);
 					return;
 				}
-				console.log('分类结果:', err);
-				/*{
-					"label": "ashcan, trash can, garbage can, wastebin, ash bin, ash-bin, ashbin, dustbin, trash barrel, trash bin",
-					"confidence": 0.5448657274246216
-				}*/
 				this.getMostLikelyCategory(err);
 
-				// 在页面上显示分类结果
+				// Display classification results on the page
 				const resultElement = document.getElementById('result');
 				const resultprobability = document.getElementById('resultprobability');
 				resultprobability.style.display = 'block';
@@ -136,8 +119,6 @@ class Ml5Classifier {
 		} else {
 			console.warn('Classifier not initialized');
 		}
-
-		// Find the category with the highest confidence
 	}
 
 	getMostLikelyCategory(results) {
@@ -149,7 +130,6 @@ class Ml5Classifier {
 				if (result.confidence > highestConfidence) {
 					highestConfidence = result.confidence;
 					labels = result.label;
-					//ashcan, trash can, garbage can, wastebin, ash bin, ash-bin, ashbin, dustbin, trash barrel, trash bin
 				}
 			});
 
@@ -164,15 +144,11 @@ class Ml5Classifier {
 	}
 
 	processResults(labels) {
-		// const { binType, guide } = this.determineWasteCategory(category);
 		let wasteCategory = this.determineWasteCategory(labels);
-		console.log(labels);
 		this.displayResults(wasteCategory, labels);
 	}
 
 	determineWasteCategory(labels) {
-		console.log(labels);
-
 		// Check if "deposit" is directly detected
 		if (labels.includes('deposit')) {
 			console.log('Direct deposit detection');
@@ -181,11 +157,6 @@ class Ml5Classifier {
 
 		// Check if it's hazardous waste
 		const hazardousKeywords = config.wasteCategories.hazardous;
-		// const isHazardous = labels.some((label) =>
-		// 	hazardousKeywords.some(
-		// 		(keyword) => label.includes(keyword) || keyword.includes(label)
-		// 	)
-		// );
 
 		const isHazardous = hazardousKeywords.some((keyword) =>
 			labels.includes(keyword)
@@ -198,11 +169,6 @@ class Ml5Classifier {
 
 		// Check if it's food or organic waste
 		const foodKeywords = config.wasteCategories.food;
-		// const isFood = labels.some((label) =>
-		// 	foodKeywords.some(
-		// 		(keyword) => label.includes(keyword) || keyword.includes(label)
-		// 	)
-		// );
 
 		const isFood = foodKeywords.some((keyword) => labels.includes(keyword));
 
@@ -213,11 +179,6 @@ class Ml5Classifier {
 
 		// First check if item is deposit-returnable
 		const depositKeywords = config.wasteCategories.deposit;
-		// const isDeposit = labels.some((label) =>
-		// 	depositKeywords.some(
-		// 		(keyword) => label.includes(keyword) || keyword.includes(label)
-		// 	)
-		// );
 		const isDeposit = depositKeywords.some((keyword) =>
 			labels.includes(keyword)
 		);
@@ -234,15 +195,6 @@ class Ml5Classifier {
 
 		// First check if item is reusable
 		const reusableKeywords = config.wasteCategories.reuse;
-		// if (
-		// 	labels.some((label) =>
-		// 		reusableKeywords.some(
-		// 			(keyword) => label.includes(keyword) || keyword.includes(label)
-		// 		)
-		// 	)
-		// ) {
-		// 	return 'reuse';
-		// }
 
 		const isReusable = reusableKeywords.some((keyword) =>
 			labels.includes(keyword)
@@ -328,8 +280,17 @@ class Ml5Classifier {
 		</div>`;
 	}
 }
-// 页面加载完成后初始化分类器
+// Initialize the classifier after the page loads
 document.addEventListener('DOMContentLoaded', () => {
-	// 初始化 MobileNet 图像分类器
+	const navItems = document.querySelectorAll('.nav-item');
+
+	navItems.forEach((item) => {
+		if (item.href === window.location.href) {
+			item.classList.add('active');
+		} else {
+			item.classList.remove('active');
+		}
+	});
+	// Initialize MobileNet image classifier
 	new Ml5Classifier();
 });
