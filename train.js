@@ -420,5 +420,15 @@ class WasteClassifier {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+	const navItems = document.querySelectorAll('.nav-item');
+
+	navItems.forEach((item) => {
+		if (item.href === window.location.href) {
+			item.classList.add('active');
+		} else {
+			item.classList.remove('active');
+		}
+	});
+
 	new WasteClassifier();
 });

@@ -40,6 +40,7 @@ h1 {
 	font-weight: 700;
 	font-size: 2.5rem;
 	background: linear-gradient(120deg, #2c3e50, #3498db);
+	background-clip: text;
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 }
@@ -293,11 +294,8 @@ h1 {
 }
 
 .nav-container {
-	/* max-width: 800px; */
 	margin: 0 auto;
 	display: flex;
-	/* ma	/* max-width: 800px; */
-x-width: 800px; */
 	justify-content: center;
 	gap: 2rem;
 	padding: 1rem;

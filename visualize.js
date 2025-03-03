@@ -139,5 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			item.classList.remove('active');
 		}
 	});
+
 	new DatasetVisualizer();
 });
