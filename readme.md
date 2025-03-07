@@ -18,17 +18,22 @@ Starta applikationen genom att använda "Go Live" på t.ex. index.html.
 
 1. index.html – Meny: "Smart Waste Classifier"
    Anropar Gemini 2.0 Flash Experimental via Google AI Studio (app.js).
+   
 2. trainml5.html – Meny: "Smart Waste Classifier ML5"
    Använder ML5.js för att träna en förtränad bildklassificeringsmodell, MobileNet (ml5.js).
+   
 3. visualize.html – Meny: "Visualize"
    Visualiserar datasetet TrashNet (visualize.js).
+   
 4. train.html – Meny: "Train Model TensorFlow"
    Använder TensorFlow.js för att träna datasetet TrashNet (train.js).
    OBS! Datasetet är inte uppladdat till GitHub på grund av dess stora storlek.
    Det kan laddas ner här: TrashNet på Kaggle(https://www.kaggle.com/datasets/feyzazkefe/trashnet).
+   
 5. wasteClassifier.html – Meny: "Smart Waste Classifier TensorFlow"
    Använder den tränade modellen från train.html för att klassificera avfall (wasteClassifierTf.js).
 
 # Notering
 
-train.js fungerar för närvarande inte optimalt och kräver vidareutveckling och justeringar för att kunna träna datasetet korrekt.
+Projektet behöver vidareutvecklas och optimeras på grund av tidsbegränsningar.
+Speciellt train.js fungerar för närvarande inte optimalt och kräver ytterligare utveckling och justeringar för att kunna träna datasetet korrekt.
